@@ -1,43 +1,43 @@
-import React, { useState } from "react";
-import "./Square.css";
+import React, { useState } from "react"; // Importing React and useState hook
+import "./Square.css"; // Importing CSS for styling the square component
 
-// SVG for Circle Icon
+// SVG for the circle icon
 const circleSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
     <g
       id="SVGRepo_tracerCarrier"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     ></g>
     <g id="SVGRepo_iconCarrier">
       <path
         d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-        stroke="#ffffff"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke="#ffffff" // Stroke color for the circle
+        stroke-width="2" // Stroke width for the circle
+        stroke-linecap="round"
+        stroke-linejoin="round"
       ></path>
     </g>
   </svg>
 );
 
-// SVG for Cross Icon
+// SVG for the cross icon
 const crossSvg = (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
     <g
       id="SVGRepo_tracerCarrier"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      stroke-linecap="round"
+      stroke-linejoin="round"
     ></g>
     <g id="SVGRepo_iconCarrier">
       <path
         d="M19 5L5 19M5.00001 5L19 19"
-        stroke="#fff"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke="#fff" // Stroke color for the cross
+        stroke-width="1.5" // Stroke width for the cross
+        stroke-linecap="round"
+        stroke-linejoin="round"
       ></path>
     </g>
   </svg>
@@ -56,59 +56,68 @@ const Square = ({
   currentPlayer,
   setCurrentPlayer,
 }) => {
-  // Local state to hold the icon for the square
-  const [icon, setIcon] = useState(null);
+  const [icon, setIcon] = useState(null); // State to track the icon of the square
 
-  // Handler for clicking on a square
+  // Function to handle square click events
   const clickOnSquare = () => {
-    // Prevent clicking if it's not the player's turn
-    if (playingAs !== currentPlayer) return;
+    // Check if the current player is allowed to make a move
+    if (playingAs !== currentPlayer) {
+      return; // Exit if it's not the player's turn
+    }
 
-    // Prevent clicking if the game has finished
-    if (finishedState) return;
+    // Check if the game has already finished
+    if (finishedState) {
+      return; // Exit if the game is finished
+    }
 
-    // If square is empty, set the icon based on the current player
+    // If the square is empty, set the icon based on the current player
     if (!icon) {
-      setIcon(currentPlayer === "circle" ? circleSvg : crossSvg);
+      if (currentPlayer === "circle") {
+        setIcon(circleSvg); // Set circle icon for current player
+      } else {
+        setIcon(crossSvg); // Set cross icon for current player
+      }
 
-      const myCurrentPlayer = currentPlayer;
-      // Emit the move to the server
+      const myCurrentPlayer = currentPlayer; // Store the current player
+      // Emit the player's move to the server
       socket.emit("playerMoveFromClient", {
-        state: { id, sign: myCurrentPlayer },
+        state: {
+          id, // ID of the clicked square
+          sign: myCurrentPlayer, // Current player's symbol
+        },
       });
 
-      // Switch the current player after move
+      // Switch to the next player
       setCurrentPlayer(currentPlayer === "circle" ? "cross" : "circle");
 
-      // Update the game state with the new move
+      // Update the game state with the current player's move
       setGameState((prevState) => {
-        let newState = [...prevState];
-        const rowIndex = Math.floor(id / 3);
-        const colIndex = id % 3;
-        newState[rowIndex][colIndex] = myCurrentPlayer;
-        console.log(currentPlayer);
-        return newState;
+        let newState = [...prevState]; // Create a copy of the previous state
+        const rowIndex = Math.floor(id / 3); // Calculate the row index
+        const colIndex = id % 3; // Calculate the column index
+        newState[rowIndex][colIndex] = myCurrentPlayer; // Set the current player's symbol in the new state
+        return newState; // Return the updated state
       });
     }
   };
 
   return (
     <div
-      onClick={clickOnSquare}
-      className={`square ${finishedState ? "not-allowed" : ""}
-        ${currentPlayer !== playingAs ? "not-allowed" : ""}
-        ${finishedArrayState.includes(id) ? `${finishedState}-won` : ""}
-        ${finishedState && finishedState !== playingAs ? "grey-background" : ""}
-      `}
+      onClick={clickOnSquare} // Handle square click
+      className={`square ${finishedState ? "not-allowed" : ""} // Disable clicks if the game is finished
+      ${currentPlayer !== playingAs ? "not-allowed" : ""} // Disable clicks if it's not the player's turn
+       ${finishedArrayState.includes(id) ? finishedState + "-won" : ""} // Apply winning styles if the square is part of the winning combination
+       ${finishedState && finishedState !== playingAs ? "grey-background" : ""} // Apply styles for opponent's win
+       `}
     >
-      {/* Display the appropriate icon for the square */}
+      {/* Render the appropriate icon based on the current element or the state */}
       {currentElement === "circle"
-        ? circleSvg
+        ? circleSvg // Render circle if the current element is a circle
         : currentElement === "cross"
-        ? crossSvg
-        : icon}
+        ? crossSvg // Render cross if the current element is a cross
+        : icon} 
     </div>
   );
 };
 
-export default Square;
+export default Square; // Export the Square component for use in other parts of the application
