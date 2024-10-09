@@ -136,7 +136,7 @@ const App = () => {
     const username = result.value;
     setPlayerName(username);
 
-    const newSocket = io("http://localhost:8000", {
+    const newSocket = io("https://tictactoeserverside.onrender.com", {
       autoConnect: true,
     });
 
